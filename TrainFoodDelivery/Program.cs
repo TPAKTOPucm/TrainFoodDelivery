@@ -16,6 +16,11 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+builder.Services.AddStackExchangeRedisCache(options => {
+    options.Configuration = "redis";
+    options.InstanceName = "local";
+});
+
 app.UseHttpsRedirection();
 
 app.UseAuthorization();

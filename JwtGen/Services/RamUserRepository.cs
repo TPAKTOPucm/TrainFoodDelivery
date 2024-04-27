@@ -34,7 +34,13 @@ public class RamUserRepository : IUserRepository
 
     public User GetUser(string id)
     {
-        return _users[id];
+        try
+        {
+            return _users[id];
+        } catch (Exception)
+        {
+            return null;
+        }
     }
 
     public bool UpdateUser(User user)

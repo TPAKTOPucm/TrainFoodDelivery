@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace JwtGen.Controllers;
 [ApiController]
-[Route("[controller]")]
+[Route("[controller]/[action]")]
 public class AccountController : ControllerBase
 {
 
@@ -21,10 +21,14 @@ public class AccountController : ControllerBase
         _repository = repository;
     }
 
-    [HttpGet]
-    public async Task<IActionResult> Login(UserParameter loginDto)
+    [HttpPost]
+    public async Task<IActionResult> Login([FromBody]string id)
     {
-        var user = _repository.GetUser(loginDto.Id);
+        var loginDto = new UserParameter()
+        {
+            Id = id
+        };
+        var user = _repository.GetUser(id);
         if (user == null)
             return NotFound();
         var token = await _tokenGenerator.GenerateAccessAndRefreshTokenAsync(loginDto, ExpireType.Hour);
@@ -38,5 +42,13 @@ public class AccountController : ControllerBase
             AccessToken = token.AccessToken,
             AccessExpires = token.AccessExpire
         });
+    }
+
+    [HttpPost]
+    public IActionResult Check([FromBody]string userId,[FromBody] string token)
+    {
+        if (_repository.GetUser(userId).Token == token)
+            return Ok();
+        return Unauthorized();
     }
 }

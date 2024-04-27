@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Caching.Distributed;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -7,6 +8,11 @@ namespace TrainFoodDelivery.Controllers;
 [ApiController]
 public class ReadyToDeliverController : ControllerBase
 {
+    private readonly IDistributedCache _cache;
+    public ReadyToDeliverController(IDistributedCache cache)
+    {
+        _cache = cache;
+    }
     // GET: api/<ReadyToDeliverController>
     [HttpGet]
     public IEnumerable<string> Get()
@@ -37,5 +43,26 @@ public class ReadyToDeliverController : ControllerBase
     [HttpDelete("{id}")]
     public void Delete(int id)
     {
+        
+    }
+
+    private async Task<bool> CheckIfAlowed()
+    {
+        var jwt = Request.Cookies.Where(c => c.Key == "token").FirstOrDefault().Value;
+        var userId = "ss";
+        if (await _cache.GetStringAsync(userId) == jwt)
+        {
+            return true;
+        }
+        using HttpClient client = new HttpClient();
+        var baseUri = "http://localhost:5280/account/check";
+        var response = await client.PostAsync(baseUri, new  StringContent(jwt));
+        if (response.StatusCode == System.Net.HttpStatusCode.OK)
+        {
+            _cache.SetStringAsync(userId, jwt);
+            return true;
+        }
+        return false;
+
     }
 }
