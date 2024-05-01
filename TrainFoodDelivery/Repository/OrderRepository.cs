@@ -94,6 +94,7 @@ public class OrderRepository : IOrderRepository
             Status = o.Status,
             Ticket = new TicketDto
             {
+                Id = o.TicketId,
                 TrainNumber = o.Ticket.TrainNumber,
                 WagonNumber = o.Ticket.WagonNumber,
                 SeatNumber = o.Ticket.SeatNumber,
