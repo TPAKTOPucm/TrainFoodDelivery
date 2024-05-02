@@ -61,8 +61,9 @@ public class ReadyToDeliverController : ControllerBase
 
     // PUT api/<ReadyToDeliverController>/5
     [HttpPut("{id}")]
-    public void Put(int id, [FromBody] string value)
+    public string Put(int id, [FromBody] string value)
     {
+        return id + value;
     }
 
     // DELETE api/<ReadyToDeliverController>/5

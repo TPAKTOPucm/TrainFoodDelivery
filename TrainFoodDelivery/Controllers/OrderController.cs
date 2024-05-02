@@ -5,7 +5,7 @@
 namespace TrainFoodDelivery.Controllers;
 [Route("api/[controller]")]
 [ApiController]
-public class OrderControllerController : ControllerBase
+public class OrderController : ControllerBase
 {
     // GET: api/<OrderControllerController>
     [HttpGet]
@@ -18,7 +18,7 @@ public class OrderControllerController : ControllerBase
     [HttpGet("{id}")]
     public string Get(int id)
     {
-        return "value";
+        return "value" + id;
     }
 
     // POST api/<OrderControllerController>
