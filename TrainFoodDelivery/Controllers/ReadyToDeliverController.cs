@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Caching.Distributed;
 using Newtonsoft.Json.Linq;
 using System.Text.Json;
+using TrainFoodDelivery.Controllers.Utils;
 using TrainFoodDelivery.DTOs;
 using TrainFoodDelivery.Models;
 using TrainFoodDelivery.Repository;
@@ -15,18 +16,18 @@ public class ReadyToDeliverController : ControllerBase
 {
     private readonly IDistributedCache _cache;
     private readonly IOrderRepository _repository;
-    private readonly ITicketRepository _ticketRepository;
-    public ReadyToDeliverController(IDistributedCache cache, IOrderRepository repository, ITicketRepository ticketRepository)
+    private readonly ControllerUtils _utils;
+    public ReadyToDeliverController(IDistributedCache cache, IOrderRepository repository, ControllerUtils utils)
     {
         _repository = repository;
         _cache = cache;
-        _ticketRepository = ticketRepository;
+        _utils = utils;
     }
     // GET: api/<ReadyToDeliverController>
     [HttpGet]
     public async Task<IActionResult> Orders(string jwt, int ticketIndex)
     {
-        var ticket = await CheckIfAlowed(jwt);
+        var ticket = await _utils.CheckIfAlowed(jwt,0,UserRole.Deliverer);
         if (ticket is null)
             return Forbid();
 
@@ -45,7 +46,7 @@ public class ReadyToDeliverController : ControllerBase
     [HttpGet]
     public async Task<IActionResult> Order(string jwt,int id)
     {
-        if(await CheckIfAlowed(jwt) is null)
+        if(await _utils.CheckIfAlowed(jwt,0,UserRole.Deliverer) is null)
             return Forbid();
         var key = "o" + id;
         var json = await _cache.GetStringAsync(key);
@@ -62,7 +63,7 @@ public class ReadyToDeliverController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> UpdateStatus(string jwt, int orderId, OrderStatus status)
     {
-        if (await CheckIfAlowed(jwt) is null)
+        if (await _utils.CheckIfAlowed(jwt,0, UserRole.Deliverer) is null)
             return Forbid();
         var order = await _repository.GetOrder(orderId);
         order.Status = status;
@@ -83,28 +84,5 @@ public class ReadyToDeliverController : ControllerBase
     public void Delete(int id)
     {
 
-    }
-
-    private async Task<TicketDto> CheckIfAlowed(string jwt)
-    {
-        var decodedJwt = JWTDecoder.Decoder.DecodeToken(jwt);
-        var userId = JObject.Parse(decodedJwt.Payload)["userid"].ToString();
-        if (await _cache.GetStringAsync(userId) != jwt)
-        {
-            using HttpClient client = new HttpClient();
-            var baseUri = "http://localhost:5280/account/check";
-            var response = await client.PostAsync(baseUri, new StringContent(jwt));
-            if (response.StatusCode != System.Net.HttpStatusCode.OK)
-            {
-                return null;
-            } else
-            {
-                _cache.SetStringAsync(userId, jwt);
-            }
-        }
-        var ticket = await _ticketRepository.GetTicket(userId, 0);
-        if(ticket.Role != UserRole.Deliverer)
-            return null;
-        return ticket;
     }
 }

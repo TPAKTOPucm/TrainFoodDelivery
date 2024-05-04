@@ -13,14 +13,12 @@ public class TestControllers
         Assert.Equal("22test", actual);
     }
 
-    [Theory]
-    [InlineData(10,"value10")]
-    [InlineData(0,"value0")]
-    public void TestOrderController(int value, string expected)
+    [Fact]
+    public void TestOrderController()
     {
-        var controller = new OrderController();
-        var actual = controller.Get(value);
-        Assert.Equal(expected, actual);
+        var controller = new OrderController(null, null, null);
+        var actual = controller.Product(0);
+        Assert.Equal(controller.BadRequest(), actual.Result);
     }
 
     [Fact]
