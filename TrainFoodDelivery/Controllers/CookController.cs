@@ -14,13 +14,6 @@ public class CookController : ControllerBase
         return new string[] { "value1", "value2" };
     }
 
-    // GET api/<CookController>/5
-    [HttpGet("{id}")]
-    public string Get(int id)
-    {
-        return "value";
-    }
-
     // POST api/<CookController>
     [HttpPost]
     public void Post([FromBody] string value)

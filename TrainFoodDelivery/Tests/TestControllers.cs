@@ -8,7 +8,7 @@ public class TestControllers
     [Fact]
     public void TestRTDC()
     {
-        var controller = new ReadyToDeliverController(null, null);
+        var controller = new ReadyToDeliverController(null, null, null);
         var actual = controller.Put(22, "test");
         Assert.Equal("22test", actual);
     }

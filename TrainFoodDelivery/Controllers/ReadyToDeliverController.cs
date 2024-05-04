@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Distributed;
+using Newtonsoft.Json.Linq;
 using System.Text.Json;
+using TrainFoodDelivery.DTOs;
 using TrainFoodDelivery.Models;
 using TrainFoodDelivery.Repository;
 
@@ -13,20 +15,26 @@ public class ReadyToDeliverController : ControllerBase
 {
     private readonly IDistributedCache _cache;
     private readonly IOrderRepository _repository;
-    public ReadyToDeliverController(IDistributedCache cache, IOrderRepository repository)
+    private readonly ITicketRepository _ticketRepository;
+    public ReadyToDeliverController(IDistributedCache cache, IOrderRepository repository, ITicketRepository ticketRepository)
     {
         _repository = repository;
         _cache = cache;
+        _ticketRepository = ticketRepository;
     }
     // GET: api/<ReadyToDeliverController>
     [HttpGet]
-    public async Task<IActionResult> Orders(int trainNumber,int wagonNumber)
+    public async Task<IActionResult> Orders(string jwt, int ticketIndex)
     {
-        var key = "O" + trainNumber + "_" + wagonNumber;
+        var ticket = await CheckIfAlowed(jwt);
+        if (ticket is null)
+            return Forbid();
+
+        var key = "O" + ticket.TrainNumber + "_" + ticket.WagonNumber;
         var json = await _cache.GetStringAsync(key);
         if (json is null)
         {
-            var orders = _repository.GetOrders(trainNumber, wagonNumber);
+            var orders = _repository.GetOrders(ticket.TrainNumber, ticket.WagonNumber);
             _cache.SetStringAsync(key, JsonSerializer.Serialize(orders));
             return Ok(orders);
         }
@@ -35,8 +43,10 @@ public class ReadyToDeliverController : ControllerBase
 
     // GET api/<ReadyToDeliverController>/5
     [HttpGet]
-    public async Task<IActionResult> Order(int id)
+    public async Task<IActionResult> Order(string jwt,int id)
     {
+        if(await CheckIfAlowed(jwt) is null)
+            return Forbid();
         var key = "o" + id;
         var json = await _cache.GetStringAsync(key);
         if (json is null)
@@ -50,8 +60,10 @@ public class ReadyToDeliverController : ControllerBase
 
     // POST api/<ReadyToDeliverController>
     [HttpPost]
-    public async Task<IActionResult> UpdateStatus(int orderId, OrderStatus status)
+    public async Task<IActionResult> UpdateStatus(string jwt, int orderId, OrderStatus status)
     {
+        if (await CheckIfAlowed(jwt) is null)
+            return Forbid();
         var order = await _repository.GetOrder(orderId);
         order.Status = status;
         await _repository.UpdateOrder(order);
@@ -70,26 +82,29 @@ public class ReadyToDeliverController : ControllerBase
     [HttpDelete("{id}")]
     public void Delete(int id)
     {
-        
+
     }
 
-    private async Task<bool> CheckIfAlowed()
+    private async Task<TicketDto> CheckIfAlowed(string jwt)
     {
-        var jwt = Request.Cookies.Where(c => c.Key == "token").FirstOrDefault().Value;
-        var userId = "ss";
-        if (await _cache.GetStringAsync(userId) == jwt)
+        var decodedJwt = JWTDecoder.Decoder.DecodeToken(jwt);
+        var userId = JObject.Parse(decodedJwt.Payload)["userid"].ToString();
+        if (await _cache.GetStringAsync(userId) != jwt)
         {
-            return true;
+            using HttpClient client = new HttpClient();
+            var baseUri = "http://localhost:5280/account/check";
+            var response = await client.PostAsync(baseUri, new StringContent(jwt));
+            if (response.StatusCode != System.Net.HttpStatusCode.OK)
+            {
+                return null;
+            } else
+            {
+                _cache.SetStringAsync(userId, jwt);
+            }
         }
-        using HttpClient client = new HttpClient();
-        var baseUri = "http://localhost:5280/account/check";
-        var response = await client.PostAsync(baseUri, new  StringContent(jwt));
-        if (response.StatusCode == System.Net.HttpStatusCode.OK)
-        {
-            _cache.SetStringAsync(userId, jwt);
-            return true;
-        }
-        return false;
-
+        var ticket = await _ticketRepository.GetTicket(userId, 0);
+        if(ticket.Role != UserRole.Deliverer)
+            return null;
+        return ticket;
     }
 }

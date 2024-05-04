@@ -5,6 +5,7 @@ public class TicketDto
     public int Id { get; set; }
     public string UserId { get; set; }
     public Models.User User { get; set; }
+    public Models.UserRole Role { get; set; }
     public int TrainNumber { get; set; }
     public int WagonNumber { get; set; }
     public int SeatNumber { get; set; }

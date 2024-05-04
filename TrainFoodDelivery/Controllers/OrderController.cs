@@ -7,12 +7,6 @@ namespace TrainFoodDelivery.Controllers;
 [ApiController]
 public class OrderController : ControllerBase
 {
-    // GET: api/<OrderControllerController>
-    [HttpGet]
-    public IEnumerable<string> Get()
-    {
-        return new string[] { "value1", "value2" };
-    }
 
     // GET api/<OrderControllerController>/5
     [HttpGet("{id}")]
