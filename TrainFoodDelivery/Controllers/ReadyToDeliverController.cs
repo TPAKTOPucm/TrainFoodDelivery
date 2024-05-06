@@ -63,12 +63,14 @@ public class ReadyToDeliverController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> UpdateStatus(string jwt, int orderId, OrderStatus status)
     {
-        if (await _utils.CheckIfAlowed(jwt,0, UserRole.Deliverer) is null)
+        var ticket = await _utils.CheckIfAlowed(jwt, 0, UserRole.Deliverer);
+        if (ticket is null)
             return Forbid();
         var order = await _repository.GetOrder(orderId);
         order.Status = status;
         await _repository.UpdateOrder(order);
         await _cache.RemoveAsync("o" + orderId);
+        await _cache.RemoveAsync("O"+ticket.TrainNumber+"_"+ticket.WagonNumber);
         return Ok();
     }
 

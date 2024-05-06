@@ -15,6 +15,7 @@ public class Ticket
     public UserRole Role { get; set; }
     public int TrainNumber { get; set; }
     public Train Train { get; set; }
+    public IEnumerable<Order> Orders { get; set; }
     public int WagonNumber { get; set; }
     public int SeatNumber { get; set; }
     public DateTime DepartureTime { get; set; }

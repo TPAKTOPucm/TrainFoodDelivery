@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Caching.Distributed;
 using System.Text.Json;
 using TrainFoodDelivery.Controllers.Utils;
+using TrainFoodDelivery.DTOs;
 using TrainFoodDelivery.Models;
 using TrainFoodDelivery.Repository;
 
@@ -50,29 +51,78 @@ public class OrderController : ControllerBase
         var json = await _cache.GetStringAsync(key);
         if (json is null)
         {
-            var product = _repository.GetProduct(id);
-            _cache.SetStringAsync(key, JsonSerializer.Serialize(product));
-            return Ok(product);
+            json = JsonSerializer.Serialize(await _repository.GetProduct(id));
+            _cache.SetStringAsync(key, json);
         }
         return Ok(json);
 
     }
 
     // POST api/<OrderControllerController>
-    [HttpPost]
-    public void Post([FromBody] string value)
+    [HttpGet]
+    public async Task<IActionResult> Orders(string jwt, int ticketIndex)
     {
+        var ticket = await _utils.CheckIfAlowed(jwt, ticketIndex, UserRole.Customer);
+        if (ticket is null)
+            return Forbid();
+        var key = "O" + jwt;
+        var json = await _cache.GetStringAsync(key);
+        if (json is null)
+        {
+            json = JsonSerializer.Serialize(await _repository.GetOrders(ticket.Id));
+            _cache.SetStringAsync(key, json);
+        }
+        return Ok(json);
     }
 
-    // PUT api/<OrderControllerController>/5
-    [HttpPut("{id}")]
-    public void Put(int id, [FromBody] string value)
+    public async Task<IActionResult> AddToCart(string jwt, int ticketIndex, int productId, int amount, int orderId)
     {
+        var ticket = await _utils.CheckIfAlowed(jwt, ticketIndex, UserRole.Customer);
+        if (ticket is null)
+            return Forbid();
+        var order = await _repository.GetOrder(orderId);
+        if(order.Status != OrderStatus.Ordering)
+            return BadRequest();
+        await _repository.AddProductToOrder(orderId, productId, amount);
+        await _cache.RemoveAsync("O" + jwt);
+        await _cache.RemoveAsync("o" + orderId);
+        return Ok();
     }
 
-    // DELETE api/<OrderControllerController>/5
-    [HttpDelete("{id}")]
-    public void Delete(int id)
+    public async Task<IActionResult> RemoveFromCart(string jwt, int ticketIndex, int productId, int orderId, int amount)
     {
+        var ticket = await _utils.CheckIfAlowed(jwt, ticketIndex, UserRole.Customer);
+        if (ticket is null)
+            return Forbid();
+        var order = await _repository.GetOrder(orderId);
+        if (order.Status != OrderStatus.Ordering || order.TicketId != ticket.Id)
+            return BadRequest();
+        await _repository.RemoveProductFromOrder(orderId, productId, amount);
+        await _cache.RemoveAsync("O" + jwt);
+        await _cache.RemoveAsync("o" + orderId);
+        await _cache.RemoveAsync("O" + ticket.TrainNumber + "_" + ticket.WagonNumber);
+        return Ok();
+    }
+
+    public async Task<IActionResult> CreateOrder(string jwt, int ticketIndex, OrderDto order)
+    {
+        var ticket = await _utils.CheckIfAlowed(jwt, ticketIndex, UserRole.Customer);
+        if (ticket is null)
+            return Forbid();
+        order.Status = OrderStatus.Ordering;
+        order.TicketId = ticket.Id;
+        await _repository.CreateOrder(order);
+        await _cache.RemoveAsync("O" + jwt);
+        return Ok();
+    }
+
+    public async Task<IActionResult> ConfirmOrder(string jwt, int ticketIndex, int orderId)
+    {
+        var ticket = await _utils.CheckIfAlowed(jwt, ticketIndex, UserRole.Customer);
+        var order = await _repository.GetOrder(orderId);
+        if (order.Status != OrderStatus.Ordering || order.TicketId != ticket.Id)
+            return BadRequest();
+        order.Status = OrderStatus.Ordered;
+        return Ok();
     }
 }

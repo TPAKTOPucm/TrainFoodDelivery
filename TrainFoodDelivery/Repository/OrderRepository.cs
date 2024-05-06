@@ -123,6 +123,19 @@ public class OrderRepository : IOrderRepository
             }
         }).ToListAsync();
 
+    public Task<List<OrderDto>> GetOrders(int ticketId) =>
+        _db.Orders.Where(o => o.TicketId == ticketId).Select(o => new OrderDto
+        {
+            Id = o.Id,
+            Status = o.Status,
+            Products = o.Products.Select(p => new ProductDto
+            {
+                Id=p.ProductId,
+                Name = p.Product.Name,
+                Cost = p.Product.Cost
+            })
+        }).ToListAsync();
+
     public Task<ProductDto> GetProduct(int id) => _db.Products.Where(p => p.Id == id).Select(p => new ProductDto
     {
         Id = p.Id,
