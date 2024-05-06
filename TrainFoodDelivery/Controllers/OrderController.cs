@@ -123,6 +123,8 @@ public class OrderController : ControllerBase
         if (order.Status != OrderStatus.Ordering || order.TicketId != ticket.Id)
             return BadRequest();
         order.Status = OrderStatus.Ordered;
+        _cache.RemoveAsync("CO"+ticket.TrainNumber+"_"+ticket.WagonNumber);
+        _cache.RemoveAsync("O" + ticket.TrainNumber + "_" + ticket.WagonNumber);
         return Ok();
     }
 }

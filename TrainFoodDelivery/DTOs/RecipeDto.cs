@@ -6,5 +6,6 @@ public class RecipeDto
     public int TrainNumber { get; set; }
     public int WagonNumber { get; set; }
     public IEnumerable<IngredientDto> Ingredients { get; set; }
+    public int Amount { get; set; }
     public ProductDto Product { get; set; }
 }
