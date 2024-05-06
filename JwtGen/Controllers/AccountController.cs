@@ -45,7 +45,7 @@ public class AccountController : ControllerBase
     }
 
     [HttpPost]
-    public IActionResult Check([FromBody]string userId,[FromBody] string token)
+    public IActionResult Check([FromBody]string userId, string token)
     {
         if (_repository.GetUser(userId).Token == token)
             return Ok();

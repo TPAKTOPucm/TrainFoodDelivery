@@ -41,7 +41,7 @@ public class OrderController : ControllerBase
         return Ok(json);
     }
 
-    // GET api/<OrderControllerController>/5
+    // GET api/<OrderControllerController>/5 + способ оплаты
     [HttpGet]
     public async Task<IActionResult> Product(int id)
     {
@@ -75,6 +75,7 @@ public class OrderController : ControllerBase
         return Ok(json);
     }
 
+    [HttpPost]
     public async Task<IActionResult> AddToCart(string jwt, int ticketIndex, int productId, int amount, int orderId)
     {
         var ticket = await _utils.CheckIfAlowed(jwt, ticketIndex, UserRole.Customer);
@@ -89,6 +90,7 @@ public class OrderController : ControllerBase
         return Ok();
     }
 
+    [HttpPost]
     public async Task<IActionResult> RemoveFromCart(string jwt, int ticketIndex, int productId, int orderId, int amount)
     {
         var ticket = await _utils.CheckIfAlowed(jwt, ticketIndex, UserRole.Customer);
@@ -104,6 +106,7 @@ public class OrderController : ControllerBase
         return Ok();
     }
 
+    [HttpPost]
     public async Task<IActionResult> CreateOrder(string jwt, int ticketIndex, OrderDto order)
     {
         var ticket = await _utils.CheckIfAlowed(jwt, ticketIndex, UserRole.Customer);
@@ -116,6 +119,7 @@ public class OrderController : ControllerBase
         return Ok();
     }
 
+    [HttpPost]
     public async Task<IActionResult> ConfirmOrder(string jwt, int ticketIndex, int orderId)
     {
         var ticket = await _utils.CheckIfAlowed(jwt, ticketIndex, UserRole.Customer);

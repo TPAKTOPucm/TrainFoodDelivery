@@ -13,6 +13,11 @@ builder.Services.AddDbContext<TrainFoodDeliveryContext>(options => options.UseSq
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+builder.Services.AddStackExchangeRedisCache(options => {
+    options.Configuration = "redis";
+    options.InstanceName = "local";
+});
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -21,11 +26,6 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
-
-builder.Services.AddStackExchangeRedisCache(options => {
-    options.Configuration = "redis";
-    options.InstanceName = "local";
-});
 
 app.UseHttpsRedirection();
 

@@ -14,6 +14,7 @@ public class TrainFoodDeliveryContext: DbContext
     public DbSet<Ticket> Tickets { get; set; }
     public DbSet<ProductOrder> ProductOrders { get; set; }
     public DbSet<WagonProduct> WagonProducts { get; set; }
+    public DbSet<OrderRecipe> OrderRecipes { get; set; }
     public TrainFoodDeliveryContext(DbContextOptions options): base(options) { }
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

@@ -22,6 +22,7 @@ public class CookController : ControllerBase
         _repository = repository;
         _cache = cache;
     }
+    [HttpPost]
     public async Task<IActionResult> AddRecipe(string jwt, int ticketIndex, RecipeDto recipe)
     {
         var ticket = await _utils.CheckIfAlowed(jwt, ticketIndex, UserRole.Cooker);
@@ -31,6 +32,7 @@ public class CookController : ControllerBase
         return Ok();
     }
 
+    [HttpGet]
     public async Task<IActionResult> GetRecipes(string jwt, int ticketIndex)
     {
         var ticket = await _utils.CheckIfAlowed(jwt, ticketIndex, UserRole.Cooker);
@@ -40,6 +42,7 @@ public class CookController : ControllerBase
         return Ok(recipes);
     }
 
+    [HttpPost]
     public async Task<IActionResult> DeleteRecipe(string jwt, int ticketIndex, int recipeId)
     {
         var ticket = await _utils.CheckIfAlowed(jwt, ticketIndex, UserRole.Cooker);
@@ -49,6 +52,7 @@ public class CookController : ControllerBase
         return Ok();
     }
 
+    [HttpPost]
     public async Task<IActionResult> SetIngredients(string jwt, int ticketIndex, IEnumerable<IngredientDto> ingredients)
     {
         var ticket = await _utils.CheckIfAlowed(jwt, ticketIndex, UserRole.Cooker);
@@ -58,6 +62,7 @@ public class CookController : ControllerBase
         return Ok();
     }
 
+    [HttpGet]
     public async Task<IActionResult> GetIngredients(string jwt, int ticketIndex)
     {
         var ticket = await _utils.CheckIfAlowed(jwt, ticketIndex, UserRole.Cooker);
@@ -67,6 +72,7 @@ public class CookController : ControllerBase
         return Ok(ingredients);
     }
 
+    [HttpGet]
     public async Task<IActionResult> GetCookOrders(string jwt, int ticketIndex)
     {
         var ticket = await _utils.CheckIfAlowed(jwt, ticketIndex, UserRole.Cooker);
@@ -82,6 +88,7 @@ public class CookController : ControllerBase
         return Ok(json);
     }
 
+    [HttpPost]
     public async Task<IActionResult> Cook(string jwt, int ticketIndex, int cookOrderId)
     {
         var ticket = await _utils.CheckIfAlowed(jwt, ticketIndex, UserRole.Cooker);
