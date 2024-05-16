@@ -8,7 +8,6 @@ public class Product
     public string Description { get; set; }
     public string ImagePath { get; set; }
     public IEnumerable<WagonProduct> WagonProducts { get; set; }
-    public int? RecipeId { get; set; }
-    public Recipe Recipe { get; set; }
+    public Recipe? Recipe { get; set; }
     public decimal Cost { get; set; }
 }

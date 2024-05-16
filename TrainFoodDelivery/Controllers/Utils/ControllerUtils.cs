@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Caching.Distributed;
 using Newtonsoft.Json.Linq;
+using System.Text;
 using TrainFoodDelivery.DTOs;
 using TrainFoodDelivery.Models;
 using TrainFoodDelivery.Repository;
@@ -18,21 +19,25 @@ public class ControllerUtils
     public async Task<TicketDto> CheckIfAlowed(string jwt, int ticketIndex, UserRole role)
     {
         var decodedJwt = JWTDecoder.Decoder.DecodeToken(jwt);
-        var userId = JObject.Parse(decodedJwt.Payload)["userid"].ToString();
+        Console.WriteLine(decodedJwt.Payload);
+        var userId = JObject.Parse(decodedJwt.Payload)["nameid"].ToString();
         if (await _cache.GetStringAsync(userId) != jwt)
         {
             using HttpClient client = new HttpClient();
-            var baseUri = "http://localhost:5280/account/check";
-            var response = await client.PostAsync(baseUri, new StringContent(jwt));
+            var uri = $"http://localhost:5280/account/check/?token={jwt}";
+            var response = await client.PostAsync(uri, new StringContent('"' + userId + '"', Encoding.UTF8, "application/json"));
             if (response.StatusCode != System.Net.HttpStatusCode.OK)
             {
+                Console.WriteLine(response.StatusCode);
+                Console.WriteLine(response.Content.ReadAsStringAsync().Result);
                 return null;
             } else
             {
                 _cache.SetStringAsync(userId, jwt);
             }
         }
-        var ticket = await _ticketRepository.GetTicket(userId, 0);
+        var ticket = await _ticketRepository.GetTicket(userId, ticketIndex);
+        Console.WriteLine(ticket.Role);
         if (ticket.Role != role)
             return null;
         return ticket;

@@ -73,18 +73,4 @@ public class ReadyToDeliverController : ControllerBase
         await _cache.RemoveAsync("O"+ticket.TrainNumber+"_"+ticket.WagonNumber);
         return Ok();
     }
-
-    // PUT api/<ReadyToDeliverController>/5
-    [HttpPut("{id}")]
-    public string Put(int id, [FromBody] string value)
-    {
-        return id + value;
-    }
-
-    // DELETE api/<ReadyToDeliverController>/5
-    [HttpDelete("{id}")]
-    public void Delete(int id)
-    {
-
-    }
 }

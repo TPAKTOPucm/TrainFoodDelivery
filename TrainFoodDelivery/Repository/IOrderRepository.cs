@@ -8,7 +8,7 @@ public interface IOrderRepository
     public Task<List<OrderDto>> GetOrders(int ticketId);
     public Task UpdateOrder(OrderDto order);
     public Task<OrderDto> GetOrder(int id);
-    public Task CreateOrder(OrderDto order);
+    public Task<OrderDto> CreateOrder(OrderDto order);
     public Task AddProductToOrder(int orderId, int productId, int amount);
     public Task RemoveProductFromOrder(int orderId, int productId, int amount = 0);
 

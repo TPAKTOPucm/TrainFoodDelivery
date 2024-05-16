@@ -10,8 +10,8 @@ public class TestControllers
     public void TestRTDC()
     {
         var controller = new ReadyToDeliverController(null, null, new ControllerUtils(null, null));
-        var actual = controller.Put(22, "test");
-        Assert.Equal("22test", actual);
+        var actual = controller.Order("not", 4);
+        Assert.Equal(controller.Forbid(), actual.Result);
     }
 
     [Fact]
@@ -27,6 +27,6 @@ public class TestControllers
     {
         var controller = new CookController(null, null, new ControllerUtils(null, null));
         var actual = controller.GetRecipes("ff",0);
-        Assert.NotNull(actual);
+        Assert.Equal(controller.Forbid(), actual.Result);
     }
 }

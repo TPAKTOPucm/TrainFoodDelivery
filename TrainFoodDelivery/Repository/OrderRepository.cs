@@ -26,9 +26,9 @@ public class OrderRepository : IOrderRepository
         await _db.SaveChangesAsync();
     }
 
-    public async Task CreateOrder(OrderDto order)
+    public async Task<OrderDto> CreateOrder(OrderDto order)
     {
-        await _db.AddAsync(new Order
+        var entity = new Order
         {
             Products = order.Products.Select(p => new ProductOrder
             {
@@ -36,9 +36,12 @@ public class OrderRepository : IOrderRepository
                 ProductId = p.Id
             }),
             Status = order.Status,
-            TicketId = order.Ticket.Id
-        });
+            TicketId = order.TicketId ?? 0
+        };
+        await _db.AddAsync(entity);
         await _db.SaveChangesAsync();
+        order.Id = entity.Id;
+        return order;
     }
 
     public async Task CreateProduct(ProductDto product)
@@ -48,8 +51,7 @@ public class OrderRepository : IOrderRepository
             Name = product.Name,
             Cost = product.Cost,
             Description = product.Description,
-            ImagePath = product.ImagePath,
-            RecipeId = product.RecipeId
+            ImagePath = product.ImagePath
         });
         await _db.SaveChangesAsync();
     }
@@ -66,7 +68,7 @@ public class OrderRepository : IOrderRepository
             Cost = product.Cost,
             Description = product.Description,
             ImagePath = product.ImagePath,
-            RecipeId = product.RecipeId
+            RecipeId = product.Recipe.Id
         };
     }
 
@@ -81,15 +83,15 @@ public class OrderRepository : IOrderRepository
                 Cost = p.Product.Cost,
                 Name = p.Product.Name,
                 ImagePath = p.Product.ImagePath,
-                RecipeId = p.Product.RecipeId,
-                NearestWagons = p.Product.WagonProducts
+                RecipeId = p.Product.Recipe.Id,
+                NearestWagons = new List<int>()/* p.Product.WagonProducts
                     .Where
                     (
                         wp => wp.ProductAmount >= p.Amount
                         && wp.TrainNumber == o.Ticket.TrainNumber
                     )
                     .OrderBy(wp => Math.Abs(wp.WagonNumber - o.Ticket.WagonNumber))
-                    .Select(wp => wp.WagonNumber).Take(3)
+                    .Select(wp => wp.WagonNumber).Take(1)*/
             }),
             Status = o.Status,
             Ticket = new TicketDto
@@ -111,7 +113,8 @@ public class OrderRepository : IOrderRepository
             Products = o.Products.Select(p => new ProductDto
             {
                 Name = p.Product.Name,
-                Cost = p.Product.Cost
+                Cost = p.Product.Cost,
+                Amount = p.Amount
             }),
             Status = o.Status,
             Ticket = new TicketDto
@@ -150,6 +153,7 @@ public class OrderRepository : IOrderRepository
         _db.Products.Where(p => p.WagonProducts.Any(wp => wp.TrainNumber == trainNumber))
         .Select(p => new ProductDto 
         { 
+            Id = p.Id,
             ImagePath = p.ImagePath,
             Cost = p.Cost,
             Name = p.Name,
@@ -192,8 +196,7 @@ public class OrderRepository : IOrderRepository
             Name = product.Name,
             Cost = product.Cost,
             Description = product.Description,
-            ImagePath = product.ImagePath,
-            RecipeId = product.RecipeId
+            ImagePath = product.ImagePath
         });
         return _db.SaveChangesAsync();
     }

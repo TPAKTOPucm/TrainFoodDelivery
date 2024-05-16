@@ -28,15 +28,15 @@ public class OrderController : ControllerBase
     {
         var ticket = await _utils.CheckIfAlowed(jwt, ticketIndex, UserRole.Customer);
         if (ticket is null)
-            return Forbid();
+            return BadRequest();
 
         var key = "P" + ticket.TrainNumber + "_" + ticket.WagonNumber;
         var json = await _cache.GetStringAsync(key);
-        if (json is null)
+        Console.WriteLine(json);
+        if (json == "")
         {
-            var orders = _repository.GetProducts(ticket.TrainNumber);
-            _cache.SetStringAsync(key, JsonSerializer.Serialize(orders));
-            return Ok(orders);
+            json = JsonSerializer.Serialize(await _repository.GetProducts(ticket.TrainNumber));
+            _cache.SetStringAsync(key, json);
         }
         return Ok(json);
     }
@@ -49,7 +49,7 @@ public class OrderController : ControllerBase
             return BadRequest();
         var key = "p" + id;
         var json = await _cache.GetStringAsync(key);
-        if (json is null)
+        if (json == "")
         {
             json = JsonSerializer.Serialize(await _repository.GetProduct(id));
             _cache.SetStringAsync(key, json);
@@ -67,7 +67,7 @@ public class OrderController : ControllerBase
             return Forbid();
         var key = "O" + jwt;
         var json = await _cache.GetStringAsync(key);
-        if (json is null)
+        if (json == "")
         {
             json = JsonSerializer.Serialize(await _repository.GetOrders(ticket.Id));
             _cache.SetStringAsync(key, json);
@@ -114,9 +114,9 @@ public class OrderController : ControllerBase
             return Forbid();
         order.Status = OrderStatus.Ordering;
         order.TicketId = ticket.Id;
-        await _repository.CreateOrder(order);
+        order = await _repository.CreateOrder(order);
         await _cache.RemoveAsync("O" + jwt);
-        return Ok();
+        return Ok(order);
     }
 
     [HttpPost]

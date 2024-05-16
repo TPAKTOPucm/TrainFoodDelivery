@@ -32,8 +32,8 @@ public class AccountController : ControllerBase
         if (user == null)
             return NotFound();
         var token = await _tokenGenerator.GenerateAccessAndRefreshTokenAsync(loginDto, ExpireType.Hour);
-        user.Token = token.RefreshToken;
-        user.TokenExpire = token.RefreshExpire;
+        user.Token = token.AccessToken;
+        user.TokenExpire = token.AccessExpire;
         _repository.UpdateUser(user);
         return Ok(new LoginResponseDto
         {

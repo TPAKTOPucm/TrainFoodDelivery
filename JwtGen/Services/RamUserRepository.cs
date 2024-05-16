@@ -20,6 +20,10 @@ public class RamUserRepository : IUserRepository
         {
             Id = "Cooker"
         }));
+        _users.Add(new("Deliverer", new()
+        {
+            Id = "Deliverer"
+        }));
     }
     public bool AddUser(User user)
     {
