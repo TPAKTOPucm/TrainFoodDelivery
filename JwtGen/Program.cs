@@ -1,9 +1,19 @@
 using Gleeman.JwtGenerator.Configuration;
 using JwtGen.Services;
+using static System.Net.Mime.MediaTypeNames;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
+var front = "front";
+builder.Services.AddCors(options => {
+    options.AddPolicy(name: front,
+                      policy => {
+                          policy.AllowAnyOrigin()
+                          .AllowAnyMethod()
+                          .AllowAnyHeader();
+                      });
+});
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -24,7 +34,7 @@ if (app.Environment.IsDevelopment())
 
 //app.UseAuthentication();
 //app.UseAuthorization();
-
+app.UseCors(front);
 app.MapControllers();
 
 app.Run();
