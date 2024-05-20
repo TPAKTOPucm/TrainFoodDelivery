@@ -22,13 +22,13 @@ public class AccountController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<IActionResult> Login([FromBody]string id)
+    public async Task<IActionResult> Login([FromBody]LoginDto dto)
     {
         var loginDto = new UserParameter()
         {
-            Id = id
+            Id = dto.Login
         };
-        var user = _repository.GetUser(id);
+        var user = _repository.GetUser(dto.Login);
         if (user == null)
             return NotFound();
         var token = await _tokenGenerator.GenerateAccessAndRefreshTokenAsync(loginDto, ExpireType.Hour);
