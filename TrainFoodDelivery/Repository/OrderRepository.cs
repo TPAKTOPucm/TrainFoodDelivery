@@ -137,9 +137,29 @@ public class OrderRepository : IOrderRepository
             {
                 Id=p.ProductId,
                 Name = p.Product.Name,
-                Cost = p.Product.Cost
+                Cost = p.Product.Cost,
+                Amount = p.Amount
             })
         }).ToListAsync();
+
+    public Task<OrderDto> GetCart(int ticketId)
+    {
+        return _db.Orders.Where(o => o.TicketId == ticketId && o.Status == OrderStatus.Ordering).Select(o => new OrderDto
+        {
+            Id = o.Id,
+            Status = o.Status,
+            Products = o.Products.Select(p => new ProductDto
+            {
+                Id = p.ProductId,
+                Name = p.Product.Name,
+                Cost = p.Product.Cost,
+                ImagePath = p.Product.ImagePath,
+                OneAmount = p.Product.Netto,
+                VolumeType = p.Product.NettoType.ToString(),
+                Amount = p.Amount
+            })
+        }).FirstOrDefaultAsync();
+    }
 
     public Task<ProductDto> GetProduct(int id) => _db.Products.Where(p => p.Id == id).Select(p => new ProductDto
     {

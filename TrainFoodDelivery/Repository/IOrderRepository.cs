@@ -14,7 +14,7 @@ public interface IOrderRepository
 
     public Task<ProductDto> GetProduct(int id);
     public Task<List<ProductDto>> GetProducts(int trainNumber);
-
+    public Task<OrderDto> GetCart(int ticketId);
     public Task CreateProduct(ProductDto product);
     public Task UpdateProduct(ProductDto product);
     public Task<ProductDto> DeleteProduct(int productId);

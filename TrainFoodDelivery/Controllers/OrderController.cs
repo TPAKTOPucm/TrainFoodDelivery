@@ -119,6 +119,16 @@ public class OrderController : ControllerBase
         return Ok(order);
     }
 
+    [HttpGet]
+    public async Task<IActionResult> GetCart(string jwt, int ticketIndex)
+    {
+        var ticket = await _utils.CheckIfAlowed(jwt, ticketIndex, UserRole.Customer);
+        if(ticket is null)
+            return BadRequest();
+        var cart = await _repository.GetCart(ticket.Id);
+        return Ok(JsonSerializer.Serialize(cart));
+    }
+
     [HttpPost]
     public async Task<IActionResult> ConfirmOrder(string jwt, int ticketIndex, int orderId)
     {
