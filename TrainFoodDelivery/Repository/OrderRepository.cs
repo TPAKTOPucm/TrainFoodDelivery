@@ -51,7 +51,9 @@ public class OrderRepository : IOrderRepository
             Name = product.Name,
             Cost = product.Cost,
             Description = product.Description,
-            ImagePath = product.ImagePath
+            ImagePath = product.ImagePath,
+            Netto = product.OneAmount,
+            NettoType = Enum.Parse<NettoType>(product.VolumeType)
         });
         await _db.SaveChangesAsync();
     }
@@ -146,6 +148,8 @@ public class OrderRepository : IOrderRepository
         Cost = p.Cost,
         Name = p.Name,
         Description = p.Description,
+        OneAmount = p.Netto,
+        VolumeType = p.NettoType.ToString(),
         Amount = p.WagonProducts.Where(wp => wp.ProductId == p.Id).Sum(wp => wp.ProductAmount)
     }).FirstOrDefaultAsync();
 
@@ -157,6 +161,8 @@ public class OrderRepository : IOrderRepository
             ImagePath = p.ImagePath,
             Cost = p.Cost,
             Name = p.Name,
+            Description = p.Description,
+            OneAmount = p.Netto,
             Amount = p.WagonProducts.Where(wp => wp.TrainNumber == trainNumber).Sum(wp => wp.ProductAmount)
         })
         .ToListAsync();

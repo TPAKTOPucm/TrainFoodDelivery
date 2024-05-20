@@ -10,5 +10,7 @@ public class ProductDto
     public int? RecipeId { get; set; }
     public RecipeDto Recipe { get; set; }
     public decimal Cost { get; set; }
+    public decimal OneAmount { get; set; }
+    public string VolumeType { get; set; }
     public int Amount { get; set; }
 }
