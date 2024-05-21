@@ -96,6 +96,7 @@ public class OrderRepository : IOrderRepository
                     .Select(wp => wp.WagonNumber).Take(1)*/
             }),
             Status = o.Status,
+            TicketId = o.TicketId,
             Ticket = new TicketDto
             {
                 Id = o.TicketId,
@@ -142,9 +143,9 @@ public class OrderRepository : IOrderRepository
             })
         }).ToListAsync();
 
-    public Task<OrderDto> GetCart(int ticketId)
+    public async Task<OrderDto> GetCart(int ticketId)
     {
-        return _db.Orders.Where(o => o.TicketId == ticketId && o.Status == OrderStatus.Ordering).Select(o => new OrderDto
+        var cart = await _db.Orders.Where(o => o.TicketId == ticketId && o.Status == OrderStatus.Ordering).Select(o => new OrderDto
         {
             Id = o.Id,
             Status = o.Status,
@@ -159,6 +160,13 @@ public class OrderRepository : IOrderRepository
                 Amount = p.Amount
             })
         }).FirstOrDefaultAsync();
+        if(cart is null)
+            return await CreateOrder(new()
+            {
+                Status = OrderStatus.Ordering,
+                TicketId = ticketId
+            });
+        return cart;
     }
 
     public Task<ProductDto> GetProduct(int id) => _db.Products.Where(p => p.Id == id).Select(p => new ProductDto
@@ -183,6 +191,7 @@ public class OrderRepository : IOrderRepository
             Name = p.Name,
             Description = p.Description,
             OneAmount = p.Netto,
+            VolumeType = p.NettoType.ToString(),
             Amount = p.WagonProducts.Where(wp => wp.TrainNumber == trainNumber).Sum(wp => wp.ProductAmount)
         })
         .ToListAsync();
@@ -201,6 +210,22 @@ public class OrderRepository : IOrderRepository
                 _db.Update(po);
         }
         await _db.SaveChangesAsync();
+    }
+
+    public async Task ConfirmOrder(OrderDto order)
+    {
+        var coockable = await _db.ProductOrders.Include(po => po.Product.Recipe).Where(po => po.Product.Recipe != null && po.OrderId == order.Id).ToListAsync();
+        foreach (var item in coockable)
+        {
+            _db.Add(new OrderRecipe
+            {
+                Amount = item.Amount,
+                OrderId = item.OrderId,
+                RecipeId = item.Product.Recipe.Id
+            });
+        }
+        order.Status = OrderStatus.Ordered;
+        await UpdateOrder(order);
     }
 
     public Task UpdateOrder(OrderDto order)

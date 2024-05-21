@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Caching.Distributed;
 using Newtonsoft.Json.Linq;
 using System.Text;
+using System.Text.Json;
 using TrainFoodDelivery.DTOs;
 using TrainFoodDelivery.Models;
 using TrainFoodDelivery.Repository;
@@ -11,6 +12,11 @@ public class ControllerUtils
 {
     private readonly IDistributedCache _cache;
     private readonly ITicketRepository _ticketRepository;
+    internal static readonly JsonSerializerOptions _serializerOptions = new()
+    {
+        WriteIndented = true,
+        DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull
+    };
     public ControllerUtils(IDistributedCache cache, ITicketRepository ticketRepository)
     {
         _cache = cache;

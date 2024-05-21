@@ -80,9 +80,9 @@ public class CookController : ControllerBase
             return Forbid();
         var key = "CO" + ticket.TrainNumber + "_" + ticket.WagonNumber;
         var json = await _cache.GetStringAsync(key);
-        if (json is null)
+        if (json == "")
         {
-            json = JsonSerializer.Serialize(await _repository.GetCookOrders(ticket.TrainNumber, ticket.WagonNumber));
+            json = JsonSerializer.Serialize(await _repository.GetCookOrders(ticket.TrainNumber, ticket.WagonNumber), ControllerUtils._serializerOptions);
             _cache.SetStringAsync(key, json);
         }
         return Ok(json);

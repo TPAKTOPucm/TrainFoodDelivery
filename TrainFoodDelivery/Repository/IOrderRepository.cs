@@ -11,6 +11,7 @@ public interface IOrderRepository
     public Task<OrderDto> CreateOrder(OrderDto order);
     public Task AddProductToOrder(int orderId, int productId, int amount);
     public Task RemoveProductFromOrder(int orderId, int productId, int amount = 0);
+    public Task ConfirmOrder(OrderDto order);
 
     public Task<ProductDto> GetProduct(int id);
     public Task<List<ProductDto>> GetProducts(int trainNumber);

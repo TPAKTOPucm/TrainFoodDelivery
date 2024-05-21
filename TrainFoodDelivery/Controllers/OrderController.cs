@@ -32,10 +32,9 @@ public class OrderController : ControllerBase
 
         var key = "P" + ticket.TrainNumber + "_" + ticket.WagonNumber;
         var json = await _cache.GetStringAsync(key);
-        Console.WriteLine(json);
         if (json == "")
         {
-            json = JsonSerializer.Serialize(await _repository.GetProducts(ticket.TrainNumber));
+            json = JsonSerializer.Serialize(await _repository.GetProducts(ticket.TrainNumber), ControllerUtils._serializerOptions);
             _cache.SetStringAsync(key, json);
         }
         return Ok(json);
@@ -51,7 +50,7 @@ public class OrderController : ControllerBase
         var json = await _cache.GetStringAsync(key);
         if (json == "")
         {
-            json = JsonSerializer.Serialize(await _repository.GetProduct(id));
+            json = JsonSerializer.Serialize(await _repository.GetProduct(id),ControllerUtils._serializerOptions);
             _cache.SetStringAsync(key, json);
         }
         return Ok(json);
@@ -69,7 +68,7 @@ public class OrderController : ControllerBase
         var json = await _cache.GetStringAsync(key);
         if (json == "")
         {
-            json = JsonSerializer.Serialize(await _repository.GetOrders(ticket.Id));
+            json = JsonSerializer.Serialize(await _repository.GetOrders(ticket.Id),ControllerUtils._serializerOptions);
             _cache.SetStringAsync(key, json);
         }
         return Ok(json);
@@ -126,7 +125,7 @@ public class OrderController : ControllerBase
         if(ticket is null)
             return BadRequest();
         var cart = await _repository.GetCart(ticket.Id);
-        return Ok(JsonSerializer.Serialize(cart));
+        return Ok(JsonSerializer.Serialize(cart,ControllerUtils._serializerOptions));
     }
 
     [HttpPost]
@@ -136,7 +135,7 @@ public class OrderController : ControllerBase
         var order = await _repository.GetOrder(orderId);
         if (order.Status != OrderStatus.Ordering || order.TicketId != ticket.Id)
             return BadRequest();
-        order.Status = OrderStatus.Ordered;
+        _repository.ConfirmOrder(order);
         _cache.RemoveAsync("CO"+ticket.TrainNumber+"_"+ticket.WagonNumber);
         _cache.RemoveAsync("O" + ticket.TrainNumber + "_" + ticket.WagonNumber);
         return Ok();

@@ -33,11 +33,10 @@ public class ReadyToDeliverController : ControllerBase
 
         var key = "O" + ticket.TrainNumber + "_" + ticket.WagonNumber;
         var json = await _cache.GetStringAsync(key);
-        if (json is null)
+        if (json == "")
         {
-            var orders = _repository.GetOrders(ticket.TrainNumber, ticket.WagonNumber);
-            _cache.SetStringAsync(key, JsonSerializer.Serialize(orders));
-            return Ok(orders);
+            json = JsonSerializer.Serialize(await _repository.GetOrders(ticket.TrainNumber, ticket.WagonNumber), ControllerUtils._serializerOptions);
+            _cache.SetStringAsync(key, json);
         }
         return Ok(json);
     }
@@ -50,11 +49,10 @@ public class ReadyToDeliverController : ControllerBase
             return Forbid();
         var key = "o" + id;
         var json = await _cache.GetStringAsync(key);
-        if (json is null)
+        if (json == "")
         {
-            var order = _repository.GetOrder(id);
-            _cache.SetStringAsync(key, JsonSerializer.Serialize(order));
-            return Ok(order);
+            json = JsonSerializer.Serialize(await _repository.GetOrder(id), ControllerUtils._serializerOptions);
+            _cache.SetStringAsync(key, json);
         }
         return Ok(json);
     }
