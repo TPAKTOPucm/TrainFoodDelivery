@@ -75,7 +75,7 @@ public class OrderController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<IActionResult> AddToCart(string jwt, int ticketIndex, int productId, int amount, int orderId)
+    public async Task<IActionResult> AddToCart(string jwt, int ticketIndex, int productId, int orderId, int amount)
     {
         var ticket = await _utils.CheckIfAlowed(jwt, ticketIndex, UserRole.Customer);
         if (ticket is null)

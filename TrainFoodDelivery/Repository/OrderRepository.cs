@@ -17,12 +17,16 @@ public class OrderRepository : IOrderRepository
         var productAmount = await _db.WagonProducts.Where(wp => wp.ProductId == productId).SumAsync(wp => wp.ProductAmount);
         if(productAmount < amount)
             throw new Exception("Not enough products in train");
-        await _db.ProductOrders.AddAsync(new ProductOrder
-        {
-            ProductId = productId,
-            Amount = amount,
-            OrderId = orderId
-        });
+        var product = await _db.ProductOrders.Where(p => p.ProductId == productId && p.OrderId == orderId).FirstOrDefaultAsync();
+        if(product is null)
+            await _db.ProductOrders.AddAsync(new ProductOrder
+            {
+                ProductId = productId,
+                Amount = amount,
+                OrderId = orderId
+            });
+        else
+            product.Amount += amount;
         await _db.SaveChangesAsync();
     }
 
