@@ -88,6 +88,9 @@ public class OrderRepository : IOrderRepository
                 Id = p.ProductId,
                 Cost = p.Product.Cost,
                 Name = p.Product.Name,
+                Amount = p.Amount,
+                OneAmount = p.Product.Netto,
+                VolumeType = p.Product.NettoType.ToString(),
                 ImagePath = p.Product.ImagePath,
                 RecipeId = p.Product.Recipe.Id,
                 NearestWagons = new List<int>()/* p.Product.WagonProducts
