@@ -72,7 +72,8 @@ public class RecipeRepository : IRecipeRepository
             Product = new ProductDto
             {
                 Id = 1,
-                Name = "Каша"
+                Name = "Каша",
+                ImagePath = "https://raiskii-sad.ru/components/com_jshopping/files/img_products/full_y25z37sio1kg2a13w6971xzrbucdaqbr.jpg"
             }
         };
         var list = new List<RecipeDto>();
