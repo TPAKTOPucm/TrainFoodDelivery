@@ -62,7 +62,8 @@ public class RecipeRepository : IRecipeRepository
             Product = new ProductDto
             {
                 Id = or.Recipe.ProductId,
-                Name = or.Recipe.Product.Name
+                Name = or.Recipe.Product.Name,
+                ImagePath = or.Recipe.Product.ImagePath
             }
         }).ToListAsync();
     /*
