@@ -48,11 +48,12 @@ public class RecipeRepository : IRecipeRepository
         await _db.SaveChangesAsync();
     }
 
-    public Task<List<RecipeDto>> GetCookOrders(int trainNumber, int wagonNumber)  /*=>
+    public Task<List<RecipeDto>> GetCookOrders(int trainNumber, int wagonNumber)  =>
         _db.OrderRecipes.Where(or => or.Recipe.TrainNumber == trainNumber && or.Recipe.WagonNumber == wagonNumber).Select(or => new RecipeDto
         {
             Id = or.Recipe.Id,
             Amount = or.Amount,
+            Text = or.Recipe.Text,
             Ingredients = or.Recipe.Ingredients.Select(i => new IngredientDto
             {
                 Id = i.Id,
@@ -63,7 +64,8 @@ public class RecipeRepository : IRecipeRepository
                 Id = or.Recipe.ProductId,
                 Name = or.Recipe.Product.Name
             }
-        }).ToListAsync();*/
+        }).ToListAsync();
+    /*
     {
         var recipe = new RecipeDto
         {
@@ -72,9 +74,8 @@ public class RecipeRepository : IRecipeRepository
             Product = new ProductDto
             {
                 Id = 1,
-                Name = "Каша",
-                ImagePath = "https://raiskii-sad.ru/components/com_jshopping/files/img_products/full_y25z37sio1kg2a13w6971xzrbucdaqbr.jpg"
-            }
+                Name = "Каша"
+            },
         };
         var list = new List<RecipeDto>();
         list.Add(recipe);
@@ -91,7 +92,7 @@ public class RecipeRepository : IRecipeRepository
         });
         recipe.Ingredients = ingredients;
         return Task.FromResult(list);
-    }
+    }*/
 
     public Task<List<IngredientDto>> GetIngredients(int trainNumber, int wagonNumber) =>
         _db.Ingredients.Where(i => i.TrainNumber == trainNumber && i.WagonNumber == wagonNumber).Select(i => new IngredientDto
