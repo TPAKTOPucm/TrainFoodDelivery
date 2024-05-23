@@ -34,7 +34,7 @@ public class OrderRepository : IOrderRepository
     {
         var entity = new Order
         {
-            Products = order.Products.Select(p => new ProductOrder
+            Products = order.Products?.Select(p => new ProductOrder
             {
                 Amount = p.Amount,
                 ProductId = p.Id
@@ -117,7 +117,7 @@ public class OrderRepository : IOrderRepository
     }
 
     public Task<List<OrderDto>> GetOrders(int trainNumber, int wagonNumber) =>
-        _db.Orders.Where(o => o.Ticket.TrainNumber == trainNumber && o.Ticket.WagonNumber == wagonNumber) // not Ordering
+        _db.Orders.Where(o => o.Ticket.TrainNumber == trainNumber && o.Ticket.WagonNumber == wagonNumber && o.Status != OrderStatus.Ordering) // not Ordering
         .Select(o => new OrderDto
         {
             Id = o.Id,
