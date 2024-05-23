@@ -48,7 +48,7 @@ public class RecipeRepository : IRecipeRepository
         await _db.SaveChangesAsync();
     }
 
-    public Task<List<RecipeDto>> GetCookOrders(int trainNumber, int wagonNumber) =>
+    public Task<List<RecipeDto>> GetCookOrders(int trainNumber, int wagonNumber)  /*=>
         _db.OrderRecipes.Where(or => or.Recipe.TrainNumber == trainNumber && or.Recipe.WagonNumber == wagonNumber).Select(or => new RecipeDto
         {
             Id = or.Recipe.Id,
@@ -63,7 +63,34 @@ public class RecipeRepository : IRecipeRepository
                 Id = or.Recipe.ProductId,
                 Name = or.Recipe.Product.Name
             }
-        }).ToListAsync();
+        }).ToListAsync();*/
+    {
+        var recipe = new RecipeDto
+        {
+            Id = 1,
+            Amount = 4,
+            Product = new ProductDto
+            {
+                Id = 1,
+                Name = "Каша"
+            }
+        };
+        var list = new List<RecipeDto>();
+        list.Add(recipe);
+        var ingredients = new List<IngredientDto>();
+        ingredients.Add(new IngredientDto()
+        {
+            Id = 1,
+            Name = "Крупа"
+        });
+        ingredients.Add(new IngredientDto()
+        {
+            Id = 2,
+            Name = "Молоко"
+        });
+        recipe.Ingredients = ingredients;
+        return Task.FromResult(list);
+    }
 
     public Task<List<IngredientDto>> GetIngredients(int trainNumber, int wagonNumber) =>
         _db.Ingredients.Where(i => i.TrainNumber == trainNumber && i.WagonNumber == wagonNumber).Select(i => new IngredientDto
