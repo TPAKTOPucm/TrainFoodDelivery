@@ -103,6 +103,7 @@ public class OrderRepository : IOrderRepository
                     .Select(wp => wp.WagonNumber).Take(1)*/
             }),
             Status = o.Status,
+            PaymentType = o.PaymentType,
             TicketId = o.TicketId,
             Ticket = new TicketDto
             {
@@ -116,10 +117,11 @@ public class OrderRepository : IOrderRepository
     }
 
     public Task<List<OrderDto>> GetOrders(int trainNumber, int wagonNumber) =>
-        _db.Orders.Where(o => o.Ticket.TrainNumber == trainNumber && o.Ticket.WagonNumber == wagonNumber)
+        _db.Orders.Where(o => o.Ticket.TrainNumber == trainNumber && o.Ticket.WagonNumber == wagonNumber) // not Ordering
         .Select(o => new OrderDto
         {
             Id = o.Id,
+            PaymentType = o.PaymentType,
             Products = o.Products.Select(p => new ProductDto
             {
                 Name = p.Product.Name,
@@ -141,6 +143,7 @@ public class OrderRepository : IOrderRepository
         {
             Id = o.Id,
             Status = o.Status,
+            PaymentType = o.PaymentType,
             Products = o.Products.Select(p => new ProductDto
             {
                 Id=p.ProductId,
@@ -241,7 +244,8 @@ public class OrderRepository : IOrderRepository
         {
             Id = order.Id,
             Status = order.Status,
-            TicketId = order.Ticket.Id
+            TicketId = order.Ticket.Id,
+            PaymentType = order.PaymentType,
         });
         return _db.SaveChangesAsync();
     }

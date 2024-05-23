@@ -129,10 +129,11 @@ public class OrderController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<IActionResult> ConfirmOrder(string jwt, int ticketIndex, int orderId)
+    public async Task<IActionResult> ConfirmOrder(string jwt, int ticketIndex, int orderId, PaymentType paymentType)
     {
         var ticket = await _utils.CheckIfAlowed(jwt, ticketIndex, UserRole.Customer);
         var order = await _repository.GetOrder(orderId);
+        order.PaymentType = paymentType;
         if (order.Status != OrderStatus.Ordering || order.TicketId != ticket.Id)
             return BadRequest();
         _repository.ConfirmOrder(order);
