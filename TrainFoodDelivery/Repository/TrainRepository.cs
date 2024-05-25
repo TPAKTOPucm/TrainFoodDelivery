@@ -40,6 +40,18 @@ public class TrainRepository : ITrainRepository
         };
     }
 
+    public Task<TrainDto> GetTrain(int id)
+    {
+        return _db.Trains.Where(t => t.Number == id).Select(t => new TrainDto
+        {
+            ArrivalTime = t.ArrivalTime,
+            DepartureTime = t.DepartureTime,
+            Number = t.Number,
+            WagonAmount = t.WagonAmount,
+            RouteId = t.RouteId
+        }).FirstOrDefaultAsync();
+    }
+
     public Task<List<TrainDto>> GetTrains()
     {
         return _db.Trains.Select(t => new TrainDto

@@ -98,4 +98,14 @@ public class ServiceController : ControllerBase
         await _ticketRepository.CreateTicket(ticket);
         return Ok();
     }
+
+    [HttpGet]
+    public async Task<IActionResult> GetTrainInfo(string jwt, int ticketIndex)
+    {
+        var ticket = await _utils.CheckIfAlowed(jwt, ticketIndex, UserRole.Admin);
+        if (ticket is null)
+            return Forbid();
+        var train = await _trainRepository.GetTrain(ticket.TrainNumber);
+        return Ok(train);
+    }
 }

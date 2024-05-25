@@ -8,4 +8,5 @@ public interface ITrainRepository
     public Task AddTrain(TrainDto train);
     public Task UpdateTrain(TrainDto train);
     public Task<TrainDto> DeleteTrain(int id);
+    public Task<TrainDto> GetTrain(int id);
 }
