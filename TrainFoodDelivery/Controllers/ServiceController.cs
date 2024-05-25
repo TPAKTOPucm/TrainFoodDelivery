@@ -12,12 +12,33 @@ public class ServiceController : ControllerBase
 {
     private readonly ITrainRepository _trainRepository;
     private readonly ITicketRepository _ticketRepository;
+    private readonly IOrderRepository _orderRepository;
     private readonly ControllerUtils _utils;
-    public ServiceController(ITrainRepository trainRepository, ITicketRepository ticketRepository, IDistributedCache cache, ControllerUtils utils)
+    public ServiceController(ITrainRepository trainRepository, ITicketRepository ticketRepository, IOrderRepository orderRepository, ControllerUtils utils)
     {
+        _orderRepository = orderRepository;
         _utils = utils;
         _ticketRepository = ticketRepository;
         _trainRepository = trainRepository;
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> GetProducts(string jwt, int ticketIndex, int? wagonNumber=null)
+    {
+        var ticket = await _utils.CheckIfAlowed(jwt, ticketIndex, UserRole.Admin);
+        if (ticket is null)
+            return Forbid();
+        return Ok(await _orderRepository.GetProducts(ticket.TrainNumber, wagonNumber));
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> AddProduct(string jwt, int ticketIndex, int wagonNumber, int productId, int amount)
+    {
+        var ticket = await _utils.CheckIfAlowed(jwt,ticketIndex, UserRole.Admin);
+        if (ticket is null)
+            return Forbid();
+        await _orderRepository.AddProductToWagon(productId, ticket.TrainNumber, wagonNumber, amount);
+        return Ok();
     }
 
     [HttpGet]

@@ -179,6 +179,28 @@ public class OrderRepository : IOrderRepository
         return cart;
     }
 
+    public async Task AddProductToWagon(int productId, int trainNumber, int wagonNumber, int amount)
+    {
+        var product = await _db.WagonProducts.Where(wp => wp.TrainNumber == trainNumber && wp.WagonNumber == wagonNumber && wp.ProductId == productId).FirstOrDefaultAsync();
+        if (product is null)
+            _db.Add(new WagonProduct
+            {
+                ProductId = productId,
+                TrainNumber = trainNumber,
+                WagonNumber = wagonNumber,
+                ProductAmount = amount
+            });
+        else
+        {
+            product.ProductAmount += amount;
+            if (product.ProductAmount < 0)
+                _db.Remove(product);
+            else
+                _db.Update(product);
+        }
+        await _db.SaveChangesAsync();
+    }
+
     public Task<ProductDto> GetProduct(int id) => _db.Products.Where(p => p.Id == id).Select(p => new ProductDto
     {
         Id = p.Id,
@@ -191,8 +213,8 @@ public class OrderRepository : IOrderRepository
         Amount = p.WagonProducts.Where(wp => wp.ProductId == p.Id).Sum(wp => wp.ProductAmount)
     }).FirstOrDefaultAsync();
 
-    public Task<List<ProductDto>> GetProducts(int trainNumber) =>
-        _db.Products.Where(p => p.WagonProducts.Any(wp => wp.TrainNumber == trainNumber))
+    public Task<List<ProductDto>> GetProducts(int trainNumber, int? wagonNumber = null) =>
+        _db.Products.Where(p => p.WagonProducts.Any(wp => wp.TrainNumber == trainNumber && (wagonNumber == null || wp.WagonNumber == wagonNumber)))
         .Select(p => new ProductDto 
         { 
             Id = p.Id,
@@ -202,7 +224,7 @@ public class OrderRepository : IOrderRepository
             Description = p.Description,
             OneAmount = p.Netto,
             VolumeType = p.NettoType.ToString(),
-            Amount = p.WagonProducts.Where(wp => wp.TrainNumber == trainNumber).Sum(wp => wp.ProductAmount)
+            Amount = p.WagonProducts.Where(wp => wp.TrainNumber == trainNumber && (wagonNumber == null || wp.WagonNumber == wagonNumber)).Sum(wp => wp.ProductAmount)
         })
         .ToListAsync();
 
