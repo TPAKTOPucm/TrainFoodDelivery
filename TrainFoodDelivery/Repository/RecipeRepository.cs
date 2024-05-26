@@ -51,7 +51,7 @@ public class RecipeRepository : IRecipeRepository
     public Task<List<RecipeDto>> GetCookOrders(int trainNumber, int wagonNumber)  =>
         _db.OrderRecipes.Where(or => or.Recipe.TrainNumber == trainNumber && or.Recipe.WagonNumber == wagonNumber).Select(or => new RecipeDto
         {
-            Id = or.Recipe.Id,
+            Id = or.Id,
             Amount = or.Amount,
             Text = or.Recipe.Text,
             Ingredients = or.Recipe.Ingredients.Select(i => new IngredientDto

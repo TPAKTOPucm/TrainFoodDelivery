@@ -122,7 +122,7 @@ public class OrderRepository : IOrderRepository
     }
 
     public Task<List<OrderDto>> GetOrders(int trainNumber, int wagonNumber) =>
-        _db.Orders.Where(o => o.Ticket.TrainNumber == trainNumber && o.Ticket.WagonNumber == wagonNumber && o.Status != OrderStatus.Ordering) // not Ordering
+        _db.Orders.Where(o => o.Ticket.TrainNumber == trainNumber && o.Ticket.WagonNumber == wagonNumber && (o.Status == OrderStatus.Cooked || o.Status == OrderStatus.Ordered || o.Status == OrderStatus.Delivering)) // not Ordering
         .Select(o => new OrderDto
         {
             Id = o.Id,
@@ -187,16 +187,15 @@ public class OrderRepository : IOrderRepository
     public async Task AddProductToWagon(int productId, int trainNumber, int wagonNumber, int amount)
     {
         var product = await _db.WagonProducts.Where(wp => wp.TrainNumber == trainNumber && wp.WagonNumber == wagonNumber && wp.ProductId == productId).FirstOrDefaultAsync();
-        if (product is null)
-            _db.Add(new WagonProduct
-            {
+        if (product is null) {
+            if (amount < 0) return;
+            _db.Add(new WagonProduct {
                 ProductId = productId,
                 TrainNumber = trainNumber,
                 WagonNumber = wagonNumber,
                 ProductAmount = amount
             });
-        else
-        {
+        } else {
             product.ProductAmount += amount;
             if (product.ProductAmount < 0)
                 _db.Remove(product);
