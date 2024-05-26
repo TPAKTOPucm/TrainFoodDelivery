@@ -23,6 +23,15 @@ public class ServiceController : ControllerBase
     }
 
     [HttpGet]
+    public async Task<IActionResult> GetRole(string jwt, int ticketIndex)
+    {
+        var ticket = await _utils.CheckIfAlowed(jwt, ticketIndex, null);
+        if (ticket == null) 
+            return NotFound();
+        return Ok(ticket.Role.ToString());
+    }
+
+    [HttpGet]
     public async Task<IActionResult> GetProducts(string jwt, int ticketIndex, int? wagonNumber=null)
     {
         var ticket = await _utils.CheckIfAlowed(jwt, ticketIndex, UserRole.Admin);

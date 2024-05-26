@@ -22,7 +22,7 @@ public class ControllerUtils
         _cache = cache;
         _ticketRepository = ticketRepository;
     }
-    public async Task<TicketDto> CheckIfAlowed(string jwt, int ticketIndex, UserRole role)
+    public async Task<TicketDto> CheckIfAlowed(string jwt, int ticketIndex, UserRole? role)
     {
         var decodedJwt = JWTDecoder.Decoder.DecodeToken(jwt);
         Console.WriteLine(decodedJwt.Payload);
@@ -44,7 +44,7 @@ public class ControllerUtils
         }
         var ticket = await _ticketRepository.GetTicket(userId, ticketIndex);
         Console.WriteLine(ticket.Role);
-        if (ticket.Role != role)
+        if (role != null && ticket.Role != role)
             return null;
         return ticket;
     }
