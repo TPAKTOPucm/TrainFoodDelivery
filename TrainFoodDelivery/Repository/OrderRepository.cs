@@ -220,6 +220,7 @@ public class OrderRepository : IOrderRepository
 
     public Task<List<ProductDto>> GetProducts(int trainNumber, int? wagonNumber = null) =>
         _db.Products/*.Where(p => p.WagonProducts.Any(wp => wp.TrainNumber == trainNumber && (wagonNumber == null || wp.WagonNumber == wagonNumber)))*/
+        .OrderBy(p => p.WagonProducts.Where(wp => wp.TrainNumber == trainNumber && (wagonNumber == null || wp.WagonNumber == wagonNumber)).Sum(wp => wp.ProductAmount))
         .Select(p => new ProductDto 
         { 
             Id = p.Id,
