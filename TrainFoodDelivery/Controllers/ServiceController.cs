@@ -34,7 +34,7 @@ public class ServiceController : ControllerBase
     [HttpGet]
     public async Task<IActionResult> GetProducts(string jwt, int ticketIndex, int? wagonNumber=null)
     {
-        var ticket = await _utils.CheckIfAlowed(jwt, ticketIndex, UserRole.Admin);
+        var ticket = await _utils.CheckIfAlowed(jwt, ticketIndex, null);
         if (ticket is null)
             return Forbid();
         return Ok(await _orderRepository.GetProducts(ticket.TrainNumber, wagonNumber));

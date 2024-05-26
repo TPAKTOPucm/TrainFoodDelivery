@@ -83,6 +83,8 @@ public class OrderRepository : IOrderRepository
 
     public Task<OrderDto> GetOrder(int id)
     {
+        var list = new List<int>();
+        list.Add(1);
         return _db.Orders.Where(o => o.Id == id).Select(o => new OrderDto
         {
             Id = o.Id,
@@ -96,7 +98,7 @@ public class OrderRepository : IOrderRepository
                 VolumeType = p.Product.NettoType.ToString(),
                 ImagePath = p.Product.ImagePath,
                 RecipeId = p.Product.Recipe.Id,
-                NearestWagons = new List<int>()/* p.Product.WagonProducts
+                NearestWagons = list/* p.Product.WagonProducts
                     .Where
                     (
                         wp => wp.ProductAmount >= p.Amount
