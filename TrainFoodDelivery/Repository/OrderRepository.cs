@@ -27,6 +27,9 @@ public class OrderRepository : IOrderRepository
             });
         else
             product.Amount += amount;
+        var wp = _db.WagonProducts.Where(wp => wp.ProductId == productId).FirstOrDefault();
+        wp.ProductAmount -= amount;
+            _db.Update(wp);
         await _db.SaveChangesAsync();
     }
 
@@ -231,7 +234,10 @@ public class OrderRepository : IOrderRepository
     public async Task RemoveProductFromOrder(int orderId, int productId, int amount = 0)
     {
         var po = await _db.ProductOrders.Where(po => po.OrderId == orderId && po.ProductId == productId).FirstOrDefaultAsync();
-        if(amount == 0)
+        var wp = _db.WagonProducts.Where(wp => wp.ProductId == productId).FirstOrDefault();
+        wp.ProductAmount += amount;
+        _db.Update(wp);
+        if (amount == 0)
             _db.ProductOrders.Remove(po);
         else
         {
