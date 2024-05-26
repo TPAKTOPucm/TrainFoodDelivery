@@ -219,7 +219,7 @@ public class OrderRepository : IOrderRepository
     }).FirstOrDefaultAsync();
 
     public Task<List<ProductDto>> GetProducts(int trainNumber, int? wagonNumber = null) =>
-        _db.Products.Where(p => p.WagonProducts.Any(wp => wp.TrainNumber == trainNumber && (wagonNumber == null || wp.WagonNumber == wagonNumber)))
+        _db.Products/*.Where(p => p.WagonProducts.Any(wp => wp.TrainNumber == trainNumber && (wagonNumber == null || wp.WagonNumber == wagonNumber)))*/
         .Select(p => new ProductDto 
         { 
             Id = p.Id,
