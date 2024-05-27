@@ -255,16 +255,23 @@ public class OrderRepository : IOrderRepository
     public async Task ConfirmOrder(OrderDto order)
     {
         var coockable = await _db.ProductOrders.Include(po => po.Product.Recipe).Where(po => po.Product.Recipe != null && po.OrderId == order.Id).ToListAsync();
-        foreach (var item in coockable)
+        if (coockable.Count == 0)
         {
-            _db.Add(new OrderRecipe
-            {
-                Amount = item.Amount,
-                OrderId = item.OrderId,
-                RecipeId = item.Product.Recipe.Id
-            });
+            order.Status = OrderStatus.Cooked;
         }
-        order.Status = OrderStatus.Ordered;
+        else
+        {
+            foreach (var item in coockable)
+            {
+                _db.Add(new OrderRecipe
+                {
+                    Amount = item.Amount,
+                    OrderId = item.OrderId,
+                    RecipeId = item.Product.Recipe.Id
+                });
+            }
+            order.Status = OrderStatus.Ordered;
+        }
         await UpdateOrder(order);
     }
 
