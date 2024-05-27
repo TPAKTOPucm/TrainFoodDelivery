@@ -8,9 +8,9 @@ public class RamUserRepository : IUserRepository
     static RamUserRepository()
     {
         _users = new Dictionary<string, User>();
-        _users.Add(new("Customer", new()
+        _users.Add(new("0420", new()
         {
-            Id = "Customer"
+            Id = "0420"
         }));
         _users.Add(new("Admin", new()
         {
