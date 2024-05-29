@@ -28,6 +28,9 @@ public class AccountController : ControllerBase
         {
             Id = dto.Login
         };
+        if(dto.Password != "123" && dto.Password != "212") {
+            return NotFound();
+        }
         var user = _repository.GetUser(dto.Login);
         if (user == null)
             return NotFound();

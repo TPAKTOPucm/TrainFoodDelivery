@@ -144,7 +144,7 @@ public class OrderRepository : IOrderRepository
         }).ToListAsync();
 
     public Task<List<OrderDto>> GetOrders(int ticketId) =>
-        _db.Orders.Where(o => o.TicketId == ticketId).Select(o => new OrderDto
+        _db.Orders.Where(o => o.TicketId == ticketId && o.Status != OrderStatus.Ordering && o.Status != OrderStatus.Completed).Select(o => new OrderDto
         {
             Id = o.Id,
             Status = o.Status,
