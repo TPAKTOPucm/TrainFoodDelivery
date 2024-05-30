@@ -10,4 +10,6 @@ public class Recipe
     public IEnumerable<Ingredient> Ingredients { get; set; }
     public int ProductId { get; set; }
     public Product Product { get; set; }
+    public IEnumerable<Photo> Photos { get; set; }
+    public IEnumerable<Video> Videos { get; set; }
 }

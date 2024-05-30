@@ -54,6 +54,8 @@ public class RecipeRepository : IRecipeRepository
             Id = or.Id,
             Amount = or.Amount,
             Text = or.Recipe.Text,
+            Photos = or.Recipe.Photos.Select(p => p.Path),
+            Videos = or.Recipe.Videos.Select(p => p.Path),
             Ingredients = or.Recipe.Ingredients.Select(i => new IngredientDto
             {
                 Id = i.Id,

@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TrainFoodDelivery.Data;
 
@@ -10,9 +11,10 @@ using TrainFoodDelivery.Data;
 namespace TrainFoodDelivery.Migrations
 {
     [DbContext(typeof(TrainFoodDeliveryContext))]
-    partial class TrainFoodDeliveryContextModelSnapshot : ModelSnapshot
+    [Migration("20240530172656_add_photos_and_videos")]
+    partial class add_photos_and_videos
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "6.0.26");
