@@ -1,10 +1,12 @@
 ﻿using TrainFoodDelivery.DTOs;
+using TrainFoodDelivery.Models;
 
 namespace TrainFoodDelivery.Repository;
 
 public interface IOrderRepository
 {
     public Task<List<OrderDto>> GetOrders(int trainNumber, int wagonNumber);
+    public Task<List<OrderDto>> GetOrders(int trainNumber, int wagonNumber, OrderStatus status);
     public Task<List<OrderDto>> GetOrders(int ticketId);
     public Task UpdateOrder(OrderDto order);
     public Task<OrderDto> GetOrder(int id);

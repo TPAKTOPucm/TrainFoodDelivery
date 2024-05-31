@@ -41,6 +41,23 @@ public class ReadyToDeliverController : ControllerBase
         return Ok(json);
     }
 
+    [HttpGet]
+    public async Task<IActionResult> CoompletedOrders(string jwt, int ticketIndex)
+    {
+        var ticket = await _utils.CheckIfAlowed(jwt, 0, UserRole.Deliverer);
+        if (ticket is null)
+            return Forbid();
+
+        var key = "compOrd" + ticket.TrainNumber + "_" + ticket.WagonNumber;
+        var json = await _cache.GetStringAsync(key);
+        if (json == "")
+        {
+            json = JsonSerializer.Serialize(await _repository.GetOrders(ticket.TrainNumber, ticket.WagonNumber, OrderStatus.Completed), ControllerUtils._serializerOptions);
+            _cache.SetStringAsync(key, json);
+        }
+        return Ok(json);
+    }
+
     // GET api/<ReadyToDeliverController>/5
     [HttpGet]
     public async Task<IActionResult> Order(string jwt,int id)

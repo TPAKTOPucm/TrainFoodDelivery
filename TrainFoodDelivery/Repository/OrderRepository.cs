@@ -160,6 +160,28 @@ public class OrderRepository : IOrderRepository
             }
         }).ToListAsync();
 
+    public Task<List<OrderDto>> GetOrders(int trainNumber, int wagonNumber, OrderStatus status) =>
+       _db.Orders.Where(o => o.Ticket.TrainNumber == trainNumber && o.Ticket.WagonNumber == wagonNumber && o.Status == status)
+       .Select(o => new OrderDto
+       {
+           Id = o.Id,
+           PaymentType = o.PaymentType,
+           Products = o.Products.Select(p => new ProductDto
+           {
+               Name = p.Product.Name,
+               Cost = p.Product.Cost,
+               Amount = p.Amount
+           }),
+           Status = o.Status,
+           Ticket = new TicketDto
+           {
+               TrainNumber = o.Ticket.TrainNumber,
+               WagonNumber = o.Ticket.WagonNumber,
+               SeatNumber = o.Ticket.SeatNumber,
+               User = o.Ticket.User
+           }
+       }).ToListAsync();
+
     public Task<List<OrderDto>> GetOrders(int ticketId) =>
         _db.Orders.Where(o => o.TicketId == ticketId && o.Status != OrderStatus.Ordering && o.Status != OrderStatus.Completed).Select(o => new OrderDto
         {
