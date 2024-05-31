@@ -81,11 +81,9 @@ public class OrderRepository : IOrderRepository
         };
     }
 
-    public Task<OrderDto> GetOrder(int id)
+    public async Task<OrderDto> GetOrder(int id)
     {
-        var list = new List<int>();
-        list.Add(1);
-        return _db.Orders.Where(o => o.Id == id).Select(o => new OrderDto
+        var order = await _db.Orders.Where(o => o.Id == id).Select(o => new OrderDto
         {
             Id = o.Id,
             Products = o.Products.Select(p => new ProductDto
@@ -98,7 +96,7 @@ public class OrderRepository : IOrderRepository
                 VolumeType = p.Product.NettoType.ToString(),
                 ImagePath = p.Product.ImagePath,
                 RecipeId = p.Product.Recipe.Id,
-                NearestWagons = list/* p.Product.WagonProducts
+                /*NearestWagons = p.Product.WagonProducts
                     .Where
                     (
                         wp => wp.ProductAmount >= p.Amount
@@ -119,6 +117,25 @@ public class OrderRepository : IOrderRepository
                 User = o.Ticket.User
             }
         }).FirstOrDefaultAsync();
+        foreach (var product in order.Products)
+        {
+            var amount = await _db.WagonProducts.Where(p => p.ProductId == product.Id && p.WagonNumber == order.Ticket.WagonNumber).Select(p => p.ProductAmount).FirstOrDefaultAsync();
+            if (amount <= product.Amount)
+                product.NearestWagons = new NearestWagonsInfo()
+                {
+                    Amount = product.Amount - amount,  //не хватает
+                    Number = _db.WagonProducts.Where
+                        (
+                            wp => wp.ProductAmount >= product.Amount
+                            && wp.TrainNumber == order.Ticket.TrainNumber
+                        )
+                        .OrderBy(wp => Math.Abs(wp.WagonNumber - order.Ticket.TrainNumber))
+                        .Select(wp => wp.WagonNumber).Take(1)
+                };
+            else
+                product.NearestWagons = new();
+        }
+        return order;
     }
 
     public Task<List<OrderDto>> GetOrders(int trainNumber, int wagonNumber) =>

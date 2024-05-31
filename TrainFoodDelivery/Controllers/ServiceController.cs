@@ -42,6 +42,18 @@ public class ServiceController : ControllerBase
     }
 
     [HttpPost]
+    public async Task<IActionResult> MoveProduct(string jwt, int ticketIndex, int wagonNumberFrom, int wagonNumberTo, int productId, int amount)
+    {
+        if(amount<0) return Forbid();
+        var ticket = await _utils.CheckIfAlowed(jwt, ticketIndex, UserRole.Deliverer);
+        if (ticket is null)
+            return Forbid();
+        await _orderRepository.AddProductToWagon(productId, ticket.TrainNumber, wagonNumberFrom, -amount);
+        await _orderRepository.AddProductToWagon(productId, ticket.TrainNumber, wagonNumberTo, amount);
+        return Ok();
+    }
+
+    [HttpPost]
     public async Task<IActionResult> AddProduct(string jwt, int ticketIndex, int wagonNumber, int productId, int amount)
     {
         var ticket = await _utils.CheckIfAlowed(jwt,ticketIndex, UserRole.Admin);
