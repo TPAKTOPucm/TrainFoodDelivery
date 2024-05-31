@@ -126,7 +126,8 @@ public class OrderRepository : IOrderRepository
                     Amount = product.Amount - amount,  //не хватает
                     Number = _db.WagonProducts.Where
                         (
-                            wp => wp.ProductAmount >= product.Amount
+                            wp => wp.ProductId == product.Id
+                            && wp.ProductAmount >= product.Amount
                             && wp.TrainNumber == order.Ticket.TrainNumber
                         )
                         .OrderBy(wp => Math.Abs(wp.WagonNumber - order.Ticket.TrainNumber))
