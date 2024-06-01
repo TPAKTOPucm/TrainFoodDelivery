@@ -45,8 +45,12 @@ public class ReadyToDeliverController : ControllerBase
     public async Task<IActionResult> CoompletedOrders(string jwt, int ticketIndex)
     {
         var ticket = await _utils.CheckIfAlowed(jwt, 0, UserRole.Deliverer);
-        if (ticket is null)
-            return Forbid();
+        if (ticket is null) {
+            ticket = await _utils.CheckIfAlowed(jwt, 0, UserRole.Admin);
+            if(ticket is null) 
+                return Forbid();
+            ticket.WagonNumber = 0;
+        }
 
         var key = "compOrd" + ticket.TrainNumber + "_" + ticket.WagonNumber;
         var json = await _cache.GetStringAsync(key);

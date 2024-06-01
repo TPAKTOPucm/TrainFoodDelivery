@@ -162,7 +162,7 @@ public class OrderRepository : IOrderRepository
         }).ToListAsync();
 
     public Task<List<OrderDto>> GetOrders(int trainNumber, int wagonNumber, OrderStatus status) =>
-       _db.Orders.Where(o => o.Ticket.TrainNumber == trainNumber && o.Ticket.WagonNumber == wagonNumber && o.Status == status)
+       _db.Orders.Where(o => o.Ticket.TrainNumber == trainNumber && (wagonNumber == 0 || o.Ticket.WagonNumber == wagonNumber) && o.Status == status)
        .Select(o => new OrderDto
        {
            Id = o.Id,
