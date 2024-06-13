@@ -5,7 +5,7 @@ VisualStudioVersion = 17.4.33122.133
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TrainFoodDelivery", "TrainFoodDelivery\TrainFoodDelivery.csproj", "{9F40C670-CF7C-4005-9AF1-BF9F6A8F1123}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JwtGen", "JwtGen\JwtGen.csproj", "{439382A8-6AD9-469A-93C7-98823E89C493}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "JwtGen", "JwtGen\JwtGen.csproj", "{439382A8-6AD9-469A-93C7-98823E89C493}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

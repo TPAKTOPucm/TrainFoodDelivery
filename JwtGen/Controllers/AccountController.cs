@@ -28,11 +28,8 @@ public class AccountController : ControllerBase
         {
             Id = dto.Login
         };
-        if(dto.Password != "123" && dto.Password != "212") {
-            return NotFound();
-        }
         var user = _repository.GetUser(dto.Login);
-        if (user == null)
+        if (user == null || user.PasswordHash != dto.Password.GetHashCode())
             return NotFound();
         var token = await _tokenGenerator.GenerateAccessAndRefreshTokenAsync(loginDto, ExpireType.Hour);
         user.Token = token.AccessToken;

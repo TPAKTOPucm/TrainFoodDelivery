@@ -13,12 +13,9 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 
 builder.Services.AddControllers();
-builder.Services.AddDbContext<TrainFoodDeliveryContext>(options => options.UseSqlite(
-        builder.Configuration.GetConnectionString("sqlite")
-    ));
-/*builder.Services.AddDbContext<TrainFoodDeliveryContext>(options => options.UseNpgsql(
+builder.Services.AddDbContext<TrainFoodDeliveryContext>(options => options.UseNpgsql(
         builder.Configuration.GetConnectionString("postgres")
-    ));*/
+    ));
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
@@ -33,15 +30,14 @@ builder.Services.AddCors(options =>
 });
 
 builder.Services.AddScoped<ControllerUtils>();
-builder.Services.AddScoped<IDistributedCache, NullCache>();
 builder.Services.AddScoped<ITrainRepository, TrainRepository>();
 builder.Services.AddScoped<ITicketRepository, TicketRepository>();
 builder.Services.AddScoped<IOrderRepository, OrderRepository>();
 builder.Services.AddScoped<IRecipeRepository, RecipeRepository>();
-/*builder.Services.AddStackExchangeRedisCache(options => {
-    options.Configuration = "redis";
-    options.InstanceName = "local";
-});*/
+builder.Services.AddStackExchangeRedisCache(options => {
+    options.Configuration = builder.Configuration.GetConnectionString("redis");
+    options.InstanceName = "train_";
+});
 
 var app = builder.Build();
 
@@ -53,10 +49,6 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseCors(front);
-
-//app.UseHttpsRedirection();
-
-app.UseAuthorization();
 
 app.MapControllers();
 
